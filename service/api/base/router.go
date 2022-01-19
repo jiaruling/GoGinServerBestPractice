@@ -12,4 +12,6 @@ func Router() {
 	global.GinRouter.Router.StaticFS("/log", http.Dir(global.LogFilePath))
 	global.GinRouter.Router.NoRoute(controller.NotFound)      // 404 路由
 	global.GinRouter.Router.GET("/health", controller.Health) // 服务健康检查
+	global.GinRouter.Router.GET("/file/base64", controller.GetConfigFile)
+	global.GinRouter.Router.POST("/file/base64", controller.PostConfigFile)
 }

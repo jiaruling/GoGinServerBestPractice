@@ -8,11 +8,12 @@ package global
 */
 
 const (
-	METHOD_POST   = "POST"
-	METHOD_GET    = "GET"
-	METHOD_PUT    = "PUT"
-	METHOD_DELETE = "DELETE"
-	FILEPATH      = "./static"
-	LogFilePath   = "./log"
-	MaxUploadSize = 5 * 1024 * 2014 // 5 MB
+	METHOD_POST    = "POST"
+	METHOD_GET     = "GET"
+	METHOD_PUT     = "PUT"
+	METHOD_DELETE  = "DELETE"
+	FILEPATH       = "./static"
+	LogFilePath    = "./log"
+	ConfigFilePath = "./config"
+	MaxUploadSize  = 5 * 1024 * 2014 // 5 MB
 )
