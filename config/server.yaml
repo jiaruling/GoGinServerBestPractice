@@ -1,0 +1,10 @@
+name: "gin最佳实践"
+env: "dev"
+runMode: "debug"
+mysql:
+  user: "root"
+  password: "abc123456"
+  ip: "192.168.18.100"
+  port: 3306
+  db: "imooc"
+  parameter: "charset=utf8mb4&parseTime=True&loc=Local"

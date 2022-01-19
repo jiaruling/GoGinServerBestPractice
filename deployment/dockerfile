@@ -1,0 +1,14 @@
+# 基础镜像使用alpine
+FROM alpine:3.13.6
+# 作者
+MAINTAINER jiaruling
+#复制程序
+WORKDIR /app
+COPY main /app/main
+#赋予程序执行权限
+RUN chmod +x /app/main
+#暴露端口
+EXPOSE 8080
+#启动程序
+CMD ["./main"]
+
