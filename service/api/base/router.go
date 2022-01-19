@@ -7,7 +7,7 @@ import (
 )
 
 func Router() {
-	// 配置静态文件
+	//加载静态资源，一般是上传的资源，例如用户上传的图片
 	global.GinRouter.Router.StaticFS("/static", http.Dir(global.FILEPATH))
 	global.GinRouter.Router.StaticFS("/log", http.Dir(global.LogFilePath))
 	global.GinRouter.Router.NoRoute(controller.NotFound)      // 404 路由
