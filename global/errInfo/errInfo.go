@@ -10,6 +10,8 @@ package errInfo
 type ErrInfo = string
 
 const (
+	SUCCESS           ErrInfo = "success"
+	NotFound          ErrInfo = "访问路径不存在"
 	RequestNotAllow   ErrInfo = "请求方式不被允许"
 	FileIsTooBig      ErrInfo = "文件太大"
 	FileGetFailed     ErrInfo = "文件获取失败"

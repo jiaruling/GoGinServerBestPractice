@@ -40,7 +40,7 @@ func main() {
 	log.Println("4. 连接数据库")
 	initial.InitDB()
 	log.Println("5. 多路复用器添加全局中间件")
-	initial.InitGlobalMiddleware()
+	initial.InitGin()
 	log.Println("6. 注册路由")
 	api.RegisterRouter()
 	//log.Println(global.Config)

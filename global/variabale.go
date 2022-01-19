@@ -2,9 +2,9 @@ package global
 
 import (
 	. "GoGinServerBestPractice/global/config_struct"
+	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 	"log"
-	"net/http"
 	"time"
 
 	"github.com/go-playground/validator/v10"
@@ -17,15 +17,20 @@ import (
    创建时间: 2022/1.sql/18 10:52
 */
 
+type Router struct {
+	Router *gin.Engine
+	V1     *gin.RouterGroup
+}
+
 var (
 	Config    ServerConfig
+	GinRouter *Router
 	RDB       *gorm.DB
 	WDB       *gorm.DB
 	AccessLog *log.Logger
 	SqlLog    *log.Logger
 	TaskLog   *log.Logger
 	LogPath   []string
-	Server    *http.Server
 	Validate  *validator.Validate
 	Expires   time.Duration
 	ETicker   *time.Ticker
