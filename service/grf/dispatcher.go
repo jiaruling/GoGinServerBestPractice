@@ -1,7 +1,6 @@
 package grf
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -14,7 +13,7 @@ import (
    创建时间: 2021/12/14 15:30
 */
 
-func Dispatcher(m ViewAPI, c *gin.Context) {
+func Dispatcher(c *gin.Context, m ViewAPI) {
 	if !m.GetModelIsInit() {
 		c.JSON(
 			http.StatusInternalServerError,
@@ -24,7 +23,7 @@ func Dispatcher(m ViewAPI, c *gin.Context) {
 	}
 	switch c.Request.Method {
 	case "GET":
-		fmt.Println(c.Param("id"))
+		//fmt.Println(c.Param("id"))
 		if len(c.Param("id")) == 1 {
 			m.ListViewAPI(c)
 		} else {
