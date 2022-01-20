@@ -2,12 +2,13 @@ package initial
 
 import (
 	"GoGinServerBestPractice/global"
-	"GoGinServerBestPractice/service/core"
+	"GoGinServerBestPractice/service/grf"
 	"fmt"
-	"gorm.io/driver/mysql"
-	"gorm.io/gorm"
 	"log"
 	"time"
+
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -49,10 +50,10 @@ func InitDB() {
 	// SetConnMaxLifetime 设置了连接可复用的最大时间。
 	sqlDB.SetConnMaxLifetime(time.Hour)
 	//defer database.Close()  // 注意这行代码要写在上面err判断的下面
-	core.RDB = database
-	core.WDB = database
-	core.GlobalPageMax = 5
-	core.GlobalPageMin = 1
+	grf.RDB = database
+	grf.WDB = database
+	grf.GlobalPageMax = 5
+	grf.GlobalPageMin = 1
 	global.RDB = database
 	global.WDB = database
 }

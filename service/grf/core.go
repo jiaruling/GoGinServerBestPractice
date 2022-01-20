@@ -1,11 +1,12 @@
-package core
+package grf
 
 import (
 	"GoGinServerBestPractice/global"
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
 	"strings"
+
+	"github.com/gin-gonic/gin"
 )
 
 /*
@@ -168,7 +169,7 @@ func (m Model) ListViewAPI(c *gin.Context) {
 	// 查询列表
 	sql := GenGetListSQL(m.M, m.Table, int64(page), int64(pageSize), condition, order, m.SelectFields, m.SelectIgnoreFields, m.DeletedFields, all)
 	global.SqlLog.Println(sql)
-	
+
 	list, err := getListDB(sql, m.M)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

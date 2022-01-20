@@ -1,9 +1,10 @@
 package main
 
 import (
-	"GoGinServerBestPractice/service/core"
+	"GoGinServerBestPractice/service/grf"
 
 	"fmt"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -27,7 +28,7 @@ func main() {
 		// 通过全局变量赋值给局部变量，可以实现并发
 		s := stu
 		s.M = new(Student)
-		core.Dispatcher(s, c)
+		grf.Dispatcher(s, c)
 		fmt.Printf("stu: %p -- s:%p \n", &stu, &s)
 		fmt.Printf("stu.M: %p -- s.M:%p \n", &stu.M, &s.M)
 		fmt.Printf("stu.T: %p -- s.T:%p \n", &stu.Table, &s.Table)

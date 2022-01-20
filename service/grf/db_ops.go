@@ -1,4 +1,4 @@
-package core
+package grf
 
 /*
    功能说明: 数据库操作
@@ -13,7 +13,7 @@ func ExecDB(sql string) (lastId int64, err error) {
 	if result.Error != nil {
 		return 0, result.Error
 	}
-	return result.RowsAffected,nil
+	return result.RowsAffected, nil
 }
 
 // 列表查询

@@ -9,6 +9,6 @@ package backend_task
 
 func InitCelery() {
 	go task1()
-	go task2()
-	go task3()
+	//go task2()
+	//go task3()
 }

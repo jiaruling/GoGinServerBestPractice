@@ -1,4 +1,4 @@
-package core
+package grf
 
 import (
 	"fmt"

@@ -1,11 +1,12 @@
-package core
+package grf
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"reflect"
 	"strings"
 	"time"
+
+	"github.com/gin-gonic/gin"
 )
 
 /*
@@ -29,7 +30,7 @@ func GenInsertSQL(m interface{}, table string, CreatedFields, CreatedIgnoreField
 			val := v.Elem().Field(i).Interface()
 			if tag != "" {
 				// 忽略字段
-				if in(tag, CreatedIgnoreFields){
+				if in(tag, CreatedIgnoreFields) {
 					continue
 				}
 				// 设置时间
@@ -52,7 +53,7 @@ func GenInsertSQL(m interface{}, table string, CreatedFields, CreatedIgnoreField
 			val := v.Elem().Field(i).Interface()
 			if tag != "" {
 				// 忽略字段
-				if !in(tag, CreatedFields){
+				if !in(tag, CreatedFields) {
 					continue
 				}
 				// 设置时间
@@ -72,6 +73,7 @@ func GenInsertSQL(m interface{}, table string, CreatedFields, CreatedIgnoreField
 	}
 	return "INSERT INTO " + table + "(" + field + ")" + " VALUES" + "(" + value + ");"
 }
+
 // ******************************************************************************************************************END
 
 // *********************************************************************************************************************
@@ -143,7 +145,7 @@ func GenUpdateSQL(m interface{}, table string, id int64, UpdateFields, UpdateIgn
 		}
 	}
 	if deleteField == "" {
-		return 	"UPDATE " + table + " SET " + fieldAndValue + fmt.Sprintf(" where id = %d;", id)
+		return "UPDATE " + table + " SET " + fieldAndValue + fmt.Sprintf(" where id = %d;", id)
 	}
 	return "UPDATE " + table + " SET " + fieldAndValue + fmt.Sprintf(" where id = %d and %s is null;", id, deleteField)
 }
@@ -178,7 +180,7 @@ func GenGetTotalSQL(table string, condition, deleteField, all string) (sql strin
 		if condition == "" {
 			return "SELECT count(1) as total FROM " + table + ";"
 		}
-		return "SELECT count(1) as total FROM " + table + " WHERE " + strings.Trim(condition, " AND")  + ";"
+		return "SELECT count(1) as total FROM " + table + " WHERE " + strings.Trim(condition, " AND") + ";"
 	}
 	return "SELECT count(1) as total FROM " + table + " WHERE " + deleteField + " is null" + condition + ";"
 }
