@@ -13,6 +13,7 @@ const (
 	SUCCESS            ErrInfo = "success"
 	FormValidateFailed ErrInfo = "表单验证失败"
 	NotFound           ErrInfo = "访问路径不存在"
+	TransError         ErrInfo = "翻译器错误"
 	RequestNotAllow    ErrInfo = "请求方式不被允许"
 	FileIsTooBig       ErrInfo = "文件太大"
 	FileGetFailed      ErrInfo = "文件获取失败"

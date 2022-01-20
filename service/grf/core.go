@@ -67,7 +67,7 @@ type Model struct {
 func (m Model) CreateViewAPI(c *gin.Context) {
 	// 1. 表单验证
 	if err := c.ShouldBindJSON(&m.M); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		FormsVerifyFailed(c, err)
 		return
 	}
 	// 2. 数据库操作
@@ -75,7 +75,7 @@ func (m Model) CreateViewAPI(c *gin.Context) {
 	global.SqlLog.Println(sql)
 	lastId, err := ExecDB(sql)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		Handler500(c, err.Error(), nil)
 		return
 	}
 	// 3.查询插入后的数据
@@ -83,11 +83,11 @@ func (m Model) CreateViewAPI(c *gin.Context) {
 	global.SqlLog.Println(sql)
 	err = getByIdDB(m.M, sql)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		Handler500(c, err.Error(), nil)
 		return
 	}
 	// 4.返回结果
-	c.JSON(http.StatusCreated, gin.H{"code": http.StatusCreated, "msg": "success", "data": m.M})
+	Handler201(c, m.M)
 	return
 }
 
@@ -96,7 +96,7 @@ func (m Model) DeleteViewAPI(c *gin.Context) {
 	IdStr := c.Param("id")
 	Id, err := strconv.Atoi(strings.Trim(IdStr, "/"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		Handler400(c, err.Error(), nil)
 		return
 	}
 	// 是否物理删除
@@ -112,11 +112,11 @@ func (m Model) DeleteViewAPI(c *gin.Context) {
 	global.SqlLog.Println(sql)
 	_, err = ExecDB(sql)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		Handler500(c, err.Error(), nil)
 		return
 	}
 	// 3. 返回结果
-	c.JSON(http.StatusNoContent, gin.H{})
+	Handler204(c)
 	return
 }
 
@@ -125,11 +125,11 @@ func (m Model) UpdateViewAPI(c *gin.Context) {
 	IdStr := c.Param("id")
 	Id, err := strconv.Atoi(strings.Trim(IdStr, "/"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		Handler400(c, err.Error(), nil)
 		return
 	}
 	if err := c.ShouldBindJSON(&m.M); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		FormsVerifyFailed(c, err)
 		return
 	}
 
@@ -138,7 +138,7 @@ func (m Model) UpdateViewAPI(c *gin.Context) {
 	global.SqlLog.Println(sql)
 	_, err = ExecDB(sql)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		Handler500(c, err.Error(), nil)
 		return
 	}
 	// 3.查询修改后的数据
@@ -146,7 +146,7 @@ func (m Model) UpdateViewAPI(c *gin.Context) {
 	global.SqlLog.Println(sql)
 	err = getByIdDB(m.M, sql)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		Handler500(c, err.Error(), nil)
 		return
 	}
 	// 4.返回结果
@@ -172,7 +172,7 @@ func (m Model) ListViewAPI(c *gin.Context) {
 
 	list, err := getListDB(sql, m.M)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		Handler500(c, err.Error(), nil)
 		return
 	}
 	// 查询记录总数
@@ -180,15 +180,11 @@ func (m Model) ListViewAPI(c *gin.Context) {
 	global.SqlLog.Println(sqlTotal)
 	total := getTotalDB(sqlTotal)
 	// 3. 返回结果
-	c.JSON(http.StatusOK, gin.H{
-		"code": http.StatusOK,
-		"msg":  "success",
-		"data": map[string]interface{}{
-			"data":      list,
-			"total":     total,
-			"page":      page,
-			"page_size": pageSize,
-		},
+	Handler200(c, map[string]interface{}{
+		"data":      list,
+		"total":     total,
+		"page":      page,
+		"page_size": pageSize,
 	})
 	return
 }
@@ -198,7 +194,7 @@ func (m Model) RetrieveViewAPI(c *gin.Context) {
 	IdStr := c.Param("id")
 	Id, err := strconv.Atoi(strings.Trim(IdStr, "/"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		Handler400(c, err.Error(), nil)
 		return
 	}
 	all := c.DefaultQuery("all", "")
@@ -207,11 +203,11 @@ func (m Model) RetrieveViewAPI(c *gin.Context) {
 	global.SqlLog.Println(sql)
 	err = getByIdDB(m.M, sql)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		Handler500(c, err.Error(), nil)
 		return
 	}
 	// 3. 返回结果
-	c.JSON(http.StatusOK, gin.H{"code": http.StatusOK, "msg": "success", "data": m.M})
+	Handler200(c, m.M)
 	return
 }
 

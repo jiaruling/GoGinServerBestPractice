@@ -1,8 +1,11 @@
 package grf
 
 import (
+	"GoGinServerBestPractice/global"
 	"GoGinServerBestPractice/global/errInfo"
 	"net/http"
+
+	"github.com/go-playground/validator/v10"
 
 	"github.com/gin-gonic/gin"
 )
@@ -42,4 +45,25 @@ func Handler404(c *gin.Context) {
 func Handler500(c *gin.Context, msg string, data interface{}) {
 	c.JSON(http.StatusInternalServerError, gin.H{"code": http.StatusInternalServerError, "msg": msg, "data": data})
 	return
+}
+
+// 表单验证失败
+func FormsVerifyFailed(c *gin.Context, err error) {
+	errs, ok := err.(validator.ValidationErrors)
+	if ok {
+		// validators.ValidationErrors类型错误则进行翻译
+		// 并使用removeTopStruct函数去除字段名中的结构体名称标识
+		data, err := RemoveTopStruct(errs.Translate(global.Trans))
+		if err != nil {
+			Handler500(c, errInfo.TransError+err.Error(), nil)
+			return
+		}
+		Handler400(c, string(data), nil)
+		return
+	} else {
+		// 非validator.ValidationErrors类型错误直接返回
+		Handler400(c, err.Error(), nil)
+		return
+	}
+
 }

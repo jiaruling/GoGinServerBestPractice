@@ -7,7 +7,7 @@ package backend_task
    创建时间: 2022/1.sql/18 11:52
 */
 
-func InitCelery() {
+func InitBackendTask() {
 	go task1()
 	//go task2()
 	//go task3()

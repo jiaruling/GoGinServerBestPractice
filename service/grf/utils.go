@@ -1,7 +1,9 @@
 package grf
 
 import (
+	"encoding/json"
 	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -75,4 +77,20 @@ func Paging(c *gin.Context, PageMax, PageMin int64) (page, pageSize int) {
 		}
 	}
 	return
+}
+
+/*
+	去除字符串前面的结构体名称:
+		{User.Name: "张三"} --> {Name: "张三"}
+*/
+func RemoveTopStruct(fields map[string]string) (b []byte, err error) {
+	res := map[string]string{}
+	for field, err := range fields {
+		res[field[strings.Index(field, ".")+1:]] = err
+	}
+	b, err = json.Marshal(res)
+	if err != nil {
+		return nil, err
+	}
+	return b, nil
 }

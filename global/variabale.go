@@ -2,10 +2,12 @@ package global
 
 import (
 	. "GoGinServerBestPractice/global/config_struct"
-	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 	"log"
 	"time"
+
+	"github.com/gin-gonic/gin"
+	ut "github.com/go-playground/universal-translator"
+	"gorm.io/gorm"
 
 	"github.com/go-playground/validator/v10"
 )
@@ -25,6 +27,7 @@ type Router struct {
 var (
 	Config    ServerConfig
 	GinRouter *Router
+	Trans     ut.Translator
 	RDB       *gorm.DB
 	WDB       *gorm.DB
 	AccessLog *log.Logger

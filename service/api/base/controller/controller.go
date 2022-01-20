@@ -51,7 +51,7 @@ func GetConfigFile(c *gin.Context) {
 func PostConfigFile(c *gin.Context) {
 	var v form.FileContent
 	if err := c.ShouldBind(&v); err != nil {
-		grf.Handler400(c, errInfo.FormValidateFailed, nil)
+		grf.FormsVerifyFailed(c, err)
 		return
 	}
 	content, err := base64.StdEncoding.DecodeString(v.Content)

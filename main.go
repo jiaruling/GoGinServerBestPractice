@@ -39,15 +39,21 @@ func main() {
 	}
 	log.Println("4. 连接数据库")
 	initial.InitDB()
-	log.Println("5. 多路复用器添加全局中间件")
+	log.Println("5. 初始化验证器的翻译器")
+	initial.InitTrans("zh")
+	log.Println("6. 初始化自定义的验证器")
+	if err = initial.InitValidator(); err != nil {
+		log.Fatalln("初始化自定义的验证器失败: ", err.Error())
+	}
+	log.Println("7. 初始化Gin")
 	initial.InitGin()
-	log.Println("6. 注册路由")
+	log.Println("8. 注册路由")
 	api.RegisterRouter()
 	//log.Println(global.Config)
-	log.Println("7. 启动http服务")
+	log.Println("9. 启动http服务")
 	initial.InitService()
-	log.Println("8. 启动后台定时任务")
-	backend_task.InitCelery()
+	log.Println("10. 启动后台定时任务")
+	backend_task.InitBackendTask()
 	log.Println("-------------------------------------------------------------------------------------------------")
 	// 优雅退出
 	quit = make(chan os.Signal) // 定义一个无缓冲的通道
