@@ -23,6 +23,6 @@ func task3() {
 }
 
 func executeTask3() {
-	global.SugarLogger.Info("<task1>: ", time.Now().String())
+	global.SugarLogger.Info("<task3>: ", time.Now().String())
 	global.Expires = time.Duration(rand.Intn(10))
 }

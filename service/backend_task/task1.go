@@ -16,7 +16,7 @@ func task1() {
 	// 开始时先执行一次
 	executeTask1()
 	// 设置定时器, 每半分钟执行一次
-	ticker := time.NewTicker(time.Duration(30) * time.Second)
+	ticker := time.NewTicker(time.Duration(3) * time.Second)
 	for {
 		<-ticker.C
 		executeTask1()

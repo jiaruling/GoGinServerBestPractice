@@ -15,7 +15,7 @@ func task2() {
 	// 启动时执行一次
 	executeTask2()
 	// 设置定时器, 每一分钟执行一次
-	ticker := time.NewTicker(time.Duration(60) * time.Second)
+	ticker := time.NewTicker(time.Duration(6) * time.Second)
 	for {
 		<-ticker.C
 		executeTask2()
@@ -23,5 +23,5 @@ func task2() {
 }
 
 func executeTask2() {
-	global.SugarLogger.Info("<task1>: ", time.Now().String())
+	global.SugarLogger.Info("<task2>: ", time.Now().String())
 }
