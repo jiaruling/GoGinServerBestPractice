@@ -24,5 +24,5 @@ func task1() {
 }
 
 func executeTask1() {
-	global.TaskLog.Println("task1", time.Now().String())
+	global.SugarLogger.Info("<task1>: ", time.Now().String())
 }

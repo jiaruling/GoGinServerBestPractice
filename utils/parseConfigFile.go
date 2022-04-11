@@ -1,8 +1,7 @@
 package utils
 
 import (
-	"fmt"
-	"log"
+	"GoGinServerBestPractice/global"
 
 	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/viper"
@@ -30,14 +29,14 @@ func ParseConfig(path string, obj interface{}) (err error) {
 	}
 	//fmt.Println(serverConfig)
 	// viper的功能 -- 动态监控变化
-	log.Println("开启配置 " + path + " 文件监听")
+	global.SugarLogger.Info("<configFile>: 开启配置 " + path + " 文件监听")
 	go func() {
 		// 开启监听功能
 		v.WatchConfig()
 		// 文件监听
 		v.OnConfigChange(func(e fsnotify.Event) {
 			// 打印变换的文件名
-			fmt.Println("配置文件发生变化:", e.Name)
+			global.SugarLogger.Info("<configFile>: 配置文件发生变化:", e.Name)
 			_ = v.ReadInConfig() // 重新读取配置数据
 			_ = v.Unmarshal(obj) // 将文件内容映射到结构体
 			//fmt.Println(constant.INTERFACE)

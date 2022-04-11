@@ -196,7 +196,7 @@ func QueryFields(m interface{}, fields, exFields []string) (field string) {
 			tag := strings.Split(t.Elem().Field(i).Tag.Get("json"), ",")[0]
 			re := t.Elem().Field(i).Tag.Get("binding")
 			ty := t.Elem().Field(i).Type.Name()
-			if inExFields(tag, exFields) {
+			if InExFields(tag, exFields) {
 				continue
 			}
 			field = handlerField(tag, re, ty, field)
@@ -206,7 +206,7 @@ func QueryFields(m interface{}, fields, exFields []string) (field string) {
 			tag := strings.Split(t.Elem().Field(i).Tag.Get("json"), ",")[0]
 			re := t.Elem().Field(i).Tag.Get("binding")
 			ty := t.Elem().Field(i).Type.Name()
-			if inFields(tag, fields) {
+			if InFields(tag, fields) {
 				field = handlerField(tag, re, ty, field)
 			}
 		}

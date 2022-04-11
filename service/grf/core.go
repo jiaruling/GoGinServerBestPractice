@@ -2,9 +2,11 @@ package grf
 
 import (
 	"GoGinServerBestPractice/global"
-	"net/http"
+	"GoGinServerBestPractice/global/errInfo"
 	"strconv"
 	"strings"
+
+	"github.com/go-sql-driver/mysql"
 
 	"github.com/gin-gonic/gin"
 )
@@ -27,7 +29,7 @@ type ViewAPI interface {
 }
 
 type CreateField struct {
-	CreatedFields        []string // 新增忽略字段
+	CreatedFields        []string // 新增字段
 	CreatedIgnoreFields  []string // 新增忽略字段 if len(CreatedFields) > 0 此字段不生效
 	CreatedSetTimeFields []string // 新增时设置为当前时间字段
 }
@@ -37,7 +39,7 @@ type SoftDeleteField struct {
 }
 
 type UpdateField struct {
-	UpdateFields        []string // 修改忽略字段
+	UpdateFields        []string // 修改字段
 	UpdateIgnoreFields  []string // 修改忽略字段 if len(UpdateFields) > 0
 	UpdateSetTimeFields []string // 修改时设置为当前时间字段
 }
@@ -74,22 +76,20 @@ func (m Model) CreateViewAPI(c *gin.Context) {
 	}
 	// 2. 数据库操作
 	sql := GenInsertSQL(m.M, m.Table, m.CreatedFields, m.CreatedIgnoreFields, m.CreatedSetTimeFields)
-	global.SqlLog.Println(sql)
-	lastId, err := ExecDB(sql)
+	global.SugarLogger.Infof("<sql>", sql)
+	_, err := ExecDB(sql)
 	if err != nil {
-		Handler500(c, err.Error(), nil)
-		return
-	}
-	// 3.查询插入后的数据
-	sql = GenGetByIdSQL(m.M, m.Table, lastId, m.SelectFields, m.SelectIgnoreFields, m.DeletedFields, "")
-	global.SqlLog.Println(sql)
-	err = getByIdDB(m.M, sql)
-	if err != nil {
+		if errMySQL, ok := err.(*mysql.MySQLError); ok {
+			if errMySQL.Number == 1062 {
+				Handler500(c, errInfo.Exist, nil)
+				return
+			}
+		}
 		Handler500(c, err.Error(), nil)
 		return
 	}
 	// 4.返回结果
-	Handler201(c, m.M)
+	Handler201(c, errInfo.CreatedSuccess)
 	return
 }
 
@@ -98,7 +98,7 @@ func (m Model) DeleteViewAPI(c *gin.Context) {
 	IdStr := c.Param("id")
 	Id, err := strconv.Atoi(strings.Trim(IdStr, "/"))
 	if err != nil {
-		Handler400(c, err.Error(), nil)
+		Handler400(c, errInfo.PrimaryRequire, nil)
 		return
 	}
 	// 是否物理删除
@@ -111,7 +111,7 @@ func (m Model) DeleteViewAPI(c *gin.Context) {
 	} else {
 		sql = GenSoftDeleteSQL(m.M, m.Table, int64(Id), m.DeletedFields)
 	}
-	global.SqlLog.Println(sql)
+	global.SugarLogger.Infof("<sql>", sql)
 	_, err = ExecDB(sql)
 	if err != nil {
 		Handler500(c, err.Error(), nil)
@@ -127,7 +127,7 @@ func (m Model) UpdateViewAPI(c *gin.Context) {
 	IdStr := c.Param("id")
 	Id, err := strconv.Atoi(strings.Trim(IdStr, "/"))
 	if err != nil {
-		Handler400(c, err.Error(), nil)
+		Handler400(c, errInfo.PrimaryRequire, nil)
 		return
 	}
 	if err := c.ShouldBindJSON(&m.M); err != nil {
@@ -137,22 +137,20 @@ func (m Model) UpdateViewAPI(c *gin.Context) {
 
 	// 2. 数据库操作
 	sql := GenUpdateSQL(m.M, m.Table, int64(Id), m.UpdateFields, m.UpdateIgnoreFields, m.UpdateSetTimeFields, m.DeletedFields)
-	global.SqlLog.Println(sql)
+	global.SugarLogger.Infof("<sql>", sql)
 	_, err = ExecDB(sql)
 	if err != nil {
-		Handler500(c, err.Error(), nil)
-		return
-	}
-	// 3.查询修改后的数据
-	sql = GenGetByIdSQL(m.M, m.Table, int64(Id), m.SelectFields, m.SelectIgnoreFields, m.DeletedFields, "")
-	global.SqlLog.Println(sql)
-	err = getByIdDB(m.M, sql)
-	if err != nil {
+		if errMySQL, ok := err.(*mysql.MySQLError); ok {
+			if errMySQL.Number == 1062 {
+				Handler500(c, errInfo.Exist, nil)
+				return
+			}
+		}
 		Handler500(c, err.Error(), nil)
 		return
 	}
 	// 4.返回结果
-	c.JSON(http.StatusCreated, gin.H{"code": http.StatusCreated, "msg": "success", "data": m.M})
+	Handler200(c, errInfo.UpdatesSuccess)
 	return
 }
 
@@ -170,16 +168,16 @@ func (m Model) ListViewAPI(c *gin.Context) {
 	//fmt.Println(order)
 	// 查询列表
 	sql := GenGetListSQL(m.M, m.Table, int64(page), int64(pageSize), condition, order, m.SelectFields, m.SelectIgnoreFields, m.DeletedFields, all)
-	global.SqlLog.Println(sql)
+	global.SugarLogger.Infof("<sql>", sql)
 
-	list, err := getListDB(sql, m.M)
+	list, err := getListDB(sql)
 	if err != nil {
 		Handler500(c, err.Error(), nil)
 		return
 	}
 	// 查询记录总数
 	sqlTotal := GenGetTotalSQL(m.Table, condition, m.DeletedFields, all)
-	global.SqlLog.Println(sqlTotal)
+	global.SugarLogger.Infof(sqlTotal)
 	total := getTotalDB(sqlTotal)
 	// 3. 返回结果
 	Handler200(c, map[string]interface{}{
@@ -196,20 +194,20 @@ func (m Model) RetrieveViewAPI(c *gin.Context) {
 	IdStr := c.Param("id")
 	Id, err := strconv.Atoi(strings.Trim(IdStr, "/"))
 	if err != nil {
-		Handler400(c, err.Error(), nil)
+		Handler400(c, errInfo.PrimaryRequire, nil)
 		return
 	}
 	all := c.DefaultQuery("all", "")
 	// 2. 数据库操作
 	sql := GenGetByIdSQL(m.M, m.Table, int64(Id), m.SelectFields, m.SelectIgnoreFields, m.DeletedFields, all)
-	global.SqlLog.Println(sql)
-	err = getByIdDB(m.M, sql)
+	global.SugarLogger.Infof("<sql>", sql)
+	list, err := getByIdDB(sql)
 	if err != nil {
 		Handler500(c, err.Error(), nil)
 		return
 	}
 	// 3. 返回结果
-	Handler200(c, m.M)
+	Handler200(c, map[string]interface{}{"data": list})
 	return
 }
 

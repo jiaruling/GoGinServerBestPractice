@@ -1,7 +1,7 @@
 package main
 
 import (
-	"GoGinServerBestPractice/service/grf"
+	"GMManagementHCG/service/grf"
 
 	"fmt"
 

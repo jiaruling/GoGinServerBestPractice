@@ -1,10 +1,16 @@
 name: "gin最佳实践"
 env: "dev"
 runMode: "debug"
+systemVersion: "version" # 系统环境变量的key
 mysql:
   user: "root"
   password: "abc123456"
-  ip: "192.168.18.100"
-  port: 3306
-  db: "imooc"
+  ip: "192.168.8.88"
+  port: 3366
+  db: "gateway"
   parameter: "charset=utf8mb4&parseTime=True&loc=Local"
+redis:
+
+service:
+  addr: "0.0.0.0"
+  port: 8080

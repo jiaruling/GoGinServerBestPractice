@@ -3,7 +3,7 @@ package controller
 import (
 	"GoGinServerBestPractice/global"
 	"GoGinServerBestPractice/global/errInfo"
-	"GoGinServerBestPractice/service/api/base/form"
+	"GoGinServerBestPractice/service/api/base/dto"
 	"GoGinServerBestPractice/service/grf"
 	"GoGinServerBestPractice/utils"
 	"encoding/base64"
@@ -26,7 +26,17 @@ func NotFound(c *gin.Context) {
 }
 
 func Health(c *gin.Context) {
-	grf.Handler200(c, global.Config.Name)
+	health := dto.Health{
+		Name:      global.Config.Name,
+		StartTime: global.StartTime,
+		Version:   global.Version,
+	}
+	grf.Handler200(c, health)
+	return
+}
+
+func Ping(c *gin.Context) {
+	grf.Handler200(c, global.Pong)
 	return
 }
 
@@ -49,7 +59,7 @@ func GetConfigFile(c *gin.Context) {
 
 // base64数据解码后写入文件
 func PostConfigFile(c *gin.Context) {
-	var v form.FileContent
+	var v dto.FileContent
 	if err := c.ShouldBind(&v); err != nil {
 		grf.FormsVerifyFailed(c, err)
 		return

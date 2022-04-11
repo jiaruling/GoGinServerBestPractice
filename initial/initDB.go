@@ -4,7 +4,7 @@ import (
 	"GoGinServerBestPractice/global"
 	"GoGinServerBestPractice/service/grf"
 	"fmt"
-	"log"
+	"os"
 	"time"
 
 	"gorm.io/driver/mysql"
@@ -32,14 +32,14 @@ func InitDB() {
 	DNS := fmt.Sprintf("%s:%s@tcp(%s:%v)/%s?%s", MySQL.User, MySQL.Password, MySQL.Ip, MySQL.Port, MySQL.Db, MySQL.Parameter)
 	database, err := gorm.Open(mysql.Open(DNS), &gorm.Config{})
 	if err != nil {
-		log.Fatalln("open mysql failed,", err.Error())
-		return
+		global.SugarLogger.Error("open mysql failed,", err.Error())
+		os.Exit(1)
 	}
 	// 设置数据库连接池
 	sqlDB, err := database.DB()
 	if err != nil {
-		log.Fatalln("设置数据库连接池失败,", err.Error())
-		return
+		global.SugarLogger.Error("设置数据库连接池失败,", err.Error())
+		os.Exit(1)
 	}
 	// SetMaxIdleConns 设置空闲连接池中连接的最大数量
 	sqlDB.SetMaxIdleConns(5)

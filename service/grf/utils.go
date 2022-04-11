@@ -15,11 +15,11 @@ import (
    创建时间: 2021/12/15 18:04
 */
 
-func inFields(field string, Fields []string) bool {
+func InFields(field string, Fields []string) bool {
 	return in(field, Fields)
 }
 
-func inExFields(field string, ExFields []string) bool {
+func InExFields(field string, ExFields []string) bool {
 	return in(field, ExFields)
 }
 

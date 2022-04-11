@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"GoGinServerBestPractice/service/api/user/model"
+	"GoGinServerBestPractice/service/api/user/dao"
 	"GoGinServerBestPractice/service/grf"
 
 	"github.com/gin-gonic/gin"
@@ -16,7 +16,7 @@ import (
 
 func Stus(c *gin.Context) {
 	// 通过全局变量赋值给局部变量，可以实现并发
-	s := model.Stu
-	s.M = new(model.Student)
+	s := dao.Stu
+	s.M = new(dao.Student)
 	grf.Dispatcher(c, s)
 }

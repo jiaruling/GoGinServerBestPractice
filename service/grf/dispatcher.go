@@ -1,6 +1,7 @@
 package grf
 
 import (
+	"GoGinServerBestPractice/global/errInfo"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -21,7 +22,7 @@ func Dispatcher(c *gin.Context, m ViewAPI) {
 		)
 		return
 	}
-	if inFields(c.Request.Method, m.GetAllowMethod()) {
+	if InFields(c.Request.Method, m.GetAllowMethod()) {
 		switch c.Request.Method {
 		case "GET":
 			//fmt.Println(c.Param("id"))
@@ -37,10 +38,10 @@ func Dispatcher(c *gin.Context, m ViewAPI) {
 		case "DELETE":
 			m.DeleteViewAPI(c)
 		default:
-			c.JSON(http.StatusBadRequest, gin.H{"code": http.StatusBadRequest, "msg": "请求方式不被允许", "data": ""})
+			Handler400(c, errInfo.RequestNotAllow, "")
 		}
 	} else {
-		c.JSON(http.StatusBadRequest, gin.H{"code": http.StatusBadRequest, "msg": "请求方式不被允许", "data": ""})
+		Handler400(c, errInfo.RequestNotAllow, "")
 	}
 	return
 }

@@ -4,51 +4,89 @@ import (
 	"GoGinServerBestPractice/global"
 	"GoGinServerBestPractice/utils"
 	"fmt"
-	"log"
 	"os"
+	"path/filepath"
+	"strings"
+
+	"github.com/natefinch/lumberjack"
+
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
-// 初始化自带的日志库
-func InitLog(LogPath []string) {
-	// 删除历史日志文件
-	deleteLogFile(LogPath)
-	for i, item := range LogPath {
-		logFile, err := os.OpenFile(item, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
-		if err != nil {
-			fmt.Println("open log file failed, err:", err)
-			return
-		}
-		//defer logFile.Close()
-		switch i {
-		case 0:
-			log.SetOutput(logFile)
-			log.SetFlags(log.Llongfile | log.Lmicroseconds | log.Ldate)
-			log.Println("*****************************************************************************************")
-			log.Println("通用日志记录")
-			log.Println("*****************************************************************************************")
-		case 1:
-			global.AccessLog = log.New(logFile, "<Access>: ", log.Lshortfile|log.Ldate|log.Ltime)
-			global.AccessLog.Println("*****************************************************************************************")
-			global.AccessLog.Println("访问日志记录")
-			global.AccessLog.Println("*****************************************************************************************")
-		case 2:
-			global.SqlLog = log.New(logFile, "<SQL>: ", log.Lshortfile|log.Ldate|log.Ltime)
-			global.SqlLog.Println("*****************************************************************************************")
-			global.SqlLog.Println("SQL日志记录")
-			global.SqlLog.Println("*****************************************************************************************")
-		case 3:
-			global.TaskLog = log.New(logFile, "<Task>: ", log.Lshortfile|log.Ldate|log.Ltime)
-			global.TaskLog.Println("*****************************************************************************************")
-			global.TaskLog.Println("后台任务日志记录")
-			global.TaskLog.Println("*****************************************************************************************")
-		}
+func InitLogger() {
+	logList, err := WalkDir(global.Config.Log.LogDir, "log")
+	if err != nil {
+		fmt.Println("获取日志文件名称失败")
+	} else {
+		deleteLogFile(logList)
 	}
+
+	// 实现两个判断日志等级的interface (其实 zapcore.*Level 自身就是 interface)
+	infoLevel := zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
+		return lvl < zapcore.WarnLevel
+	})
+
+	warnLevel := zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
+		return lvl >= zapcore.WarnLevel
+	})
+
+	encoder := getEncoder()
+
+	// 获取 info、warn日志文件的io.Writer 抽象 getWriter() 在下方实现
+	infoWriter := getWriter(global.Config.Log.LogDir + "/" + global.Config.Log.InfoLog)
+	warnWriter := getWriter(global.Config.Log.LogDir + "/" + global.Config.Log.ErrorLog)
+
+	// 最后创建具体的Logger
+	core := zapcore.NewTee(
+		zapcore.NewCore(encoder, zapcore.AddSync(infoWriter), infoLevel),
+		zapcore.NewCore(encoder, zapcore.AddSync(warnWriter), warnLevel),
+	)
+
+	logger := zap.New(core, zap.AddCaller())
+	global.SugarLogger = logger.Sugar()
 }
 
+func getEncoder() zapcore.Encoder {
+	encoderConfig := zap.NewProductionEncoderConfig()
+	encoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
+	encoderConfig.EncodeLevel = zapcore.CapitalLevelEncoder
+	return zapcore.NewJSONEncoder(encoderConfig)
+}
+
+func getWriter(filename string) zapcore.WriteSyncer {
+	lumberJackLogger := &lumberjack.Logger{
+		Filename:   filename,
+		MaxSize:    global.Config.Log.MaxSize, //日志文件的最大大小（以MB为单位）
+		MaxBackups: global.Config.Log.MaxBackups,
+		MaxAge:     global.Config.Log.MaxAge,
+		Compress:   global.Config.Log.Compress,
+	}
+	return zapcore.AddSync(lumberJackLogger)
+}
+
+// 删除文件
 func deleteLogFile(LogList []string) {
 	for _, item := range LogList {
 		if utils.Exists(item) {
 			_ = os.Remove(item)
 		}
 	}
+}
+
+// 获取文件夹下指定文件
+func WalkDir(dir, suffix string) (files []string, err error) {
+	files = []string{}
+	err = filepath.Walk(dir, func(fname string, fi os.FileInfo, err error) error {
+		if fi.IsDir() {
+			//忽略目录
+			return nil
+		}
+		if len(suffix) == 0 || strings.HasSuffix(strings.ToLower(fi.Name()), suffix) {
+			//文件后缀匹配
+			files = append(files, fname)
+		}
+		return nil
+	})
+	return files, err
 }

@@ -2,8 +2,10 @@ package global
 
 import (
 	. "GoGinServerBestPractice/global/config_struct"
-	"log"
+	"os"
 	"time"
+
+	"go.uber.org/zap"
 
 	"github.com/gin-gonic/gin"
 	ut "github.com/go-playground/universal-translator"
@@ -25,24 +27,34 @@ type Router struct {
 }
 
 var (
-	Config    ServerConfig
-	GinRouter *Router
-	Trans     ut.Translator
-	RDB       *gorm.DB
-	WDB       *gorm.DB
-	AccessLog *log.Logger
-	SqlLog    *log.Logger
-	TaskLog   *log.Logger
-	LogPath   []string
-	Validate  *validator.Validate
-	Expires   time.Duration
-	ETicker   *time.Ticker
+	Config      ServerConfig
+	GinRouter   *Router
+	Trans       ut.Translator
+	RDB         *gorm.DB
+	WDB         *gorm.DB
+	Validate    *validator.Validate
+	Expires     time.Duration
+	ETicker     *time.Ticker
+	Logger      *zap.Logger
+	SugarLogger *zap.SugaredLogger
+	StartTime   string
+	Version     string
 )
 
 // 初始化全局变量
 func init() {
-	LogPath = []string{"./log/logs.log", "./log/access.log", "./log/sql.log", "./log/backend_task.log"}
+	Config.Log = Log{
+		LogDir:     "./log",
+		InfoLog:    "info.log",
+		ErrorLog:   "error.log",
+		MaxSize:    100,
+		MaxBackups: 3,
+		MaxAge:     30,
+		Compress:   false,
+	}
 	Validate = validator.New()
 	Expires = 10 // 10s
 	ETicker = time.NewTicker(Expires * time.Second)
+	StartTime = time.Now().Format("2006.01.02 15:04:05")
+	Version = os.Getenv(Config.SystemVersion)
 }

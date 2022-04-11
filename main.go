@@ -6,7 +6,6 @@ import (
 	"GoGinServerBestPractice/service/api"
 	"GoGinServerBestPractice/service/backend_task"
 	"GoGinServerBestPractice/utils"
-	"log"
 	"os"
 	"os/signal"
 	"runtime"
@@ -27,34 +26,34 @@ func main() {
 	)
 	// 初始化日志
 	initial.InitCreateDir()
-	initial.InitLog(global.LogPath)
-	log.Println("1. 初始化日志成功")
-	log.Println("2. 初始化线程数, 线程数量和cpu核数相等")
+	initial.InitLogger()
+	global.SugarLogger.Info("<main>: ", "1. 初始化日志成功")
+	global.SugarLogger.Info("<main>: ", "2. 初始化线程数, 线程数量和cpu核数相等")
 	runtime.GOMAXPROCS(runtime.NumCPU())
-	log.Println("CPUNUM: ", runtime.NumCPU())
-	log.Println("GOOS: ", runtime.GOOS)
-	log.Println("3. 加载配置文件")
+	global.SugarLogger.Info("<main>: ", "CPUNUM: ", runtime.NumCPU())
+	global.SugarLogger.Info("<main>: ", "GOOS: ", runtime.GOOS)
+	global.SugarLogger.Info("<main>: ", "3. 加载配置文件")
 	if err = utils.ParseConfig("./config/server.yaml", &global.Config); err != nil {
-		log.Fatalln("加载配置文件失败: ", err.Error())
+		global.SugarLogger.Error("<main>: ", "加载配置文件失败: ", err.Error())
+		os.Exit(1)
 	}
-	log.Println("4. 连接数据库")
+	global.SugarLogger.Info("<main>: ", "4. 连接数据库")
 	initial.InitDB()
-	log.Println("5. 初始化验证器的翻译器")
+	global.SugarLogger.Info("<main>: ", "5. 初始化验证器的翻译器")
 	initial.InitTrans("zh")
-	log.Println("6. 初始化自定义的验证器")
+	global.SugarLogger.Info("<main>: ", "6. 初始化自定义的验证器")
 	if err = initial.InitValidator(); err != nil {
-		log.Fatalln("初始化自定义的验证器失败: ", err.Error())
+		global.SugarLogger.Error("<main>: ", "初始化自定义的验证器失败: ", err.Error())
 	}
-	log.Println("7. 初始化Gin")
+	global.SugarLogger.Info("<main>: ", "7. 初始化Gin")
 	initial.InitGin()
-	log.Println("8. 注册路由")
+	global.SugarLogger.Info("<main>: ", "8. 注册路由")
 	api.RegisterRouter()
 	//log.Println(global.Config)
-	log.Println("9. 启动http服务")
+	global.SugarLogger.Info("<main>: ", "9. 启动http服务")
 	initial.InitService()
-	log.Println("10. 启动后台定时任务")
+	global.SugarLogger.Info("<main>: ", "10. 启动后台定时任务")
 	backend_task.InitBackendTask()
-	log.Println("-------------------------------------------------------------------------------------------------")
 	// 优雅退出
 	quit = make(chan os.Signal) // 定义一个无缓冲的通道
 	// kill (no param) default send syscanll.SIGTERM
@@ -63,10 +62,9 @@ func main() {
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	//从quit中接收值，忽略结果
 	<-quit
-	log.Println("-------------------------------------------------------------------------------------------------")
-	log.Println("优雅退出...")
-	log.Println("资源重置, 保存数据...")
-	log.Println("注销服务...")
-	log.Println("程序优雅退出...")
+	global.SugarLogger.Info("<main>: ", "-1. 优雅退出...")
+	global.SugarLogger.Info("<main>: ", "-2. 资源重置, 保存数据...")
+	global.SugarLogger.Info("<main>: ", "-3. 注销服务...")
+	global.SugarLogger.Info("<main>: ", "-4. 程序优雅退出...")
 	return
 }
